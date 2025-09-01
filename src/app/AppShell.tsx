@@ -161,7 +161,7 @@ export const AppShell: React.FC = () => {
   const drawer = (
     <Box>
       <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Collapse in={!drawerCollapsed} orientation="horizontal">
+        <Collapse in={!isMobile && !drawerCollapsed} orientation="horizontal">
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <img src={logoDataUrl} alt="Logo" style={{ width: 40, height: 40 }} />
             <Typography
@@ -180,7 +180,7 @@ export const AppShell: React.FC = () => {
           </Box>
         </Collapse>
         <IconButton 
-          onClick={handleDrawerCollapse} 
+          onClick={isMobile ? handleDrawerToggle : handleDrawerCollapse}
           size="small"
           sx={{
             backgroundColor: 'rgba(255, 255, 255, 0.15)',
@@ -194,7 +194,7 @@ export const AppShell: React.FC = () => {
             border: '1px solid rgba(255, 255, 255, 0.3)',
           }}
         >
-          {drawerCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          {isMobile ? <ChevronLeftIcon /> : (drawerCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />)}
         </IconButton>
       </Toolbar>
       <List>
@@ -212,7 +212,7 @@ export const AppShell: React.FC = () => {
                   borderRadius: 2,
                   mx: 1,
                   minHeight: 48,
-                  justifyContent: drawerCollapsed ? "center" : "flex-start",
+                  justifyContent: isMobile ? "flex-start" : (drawerCollapsed ? "center" : "flex-start"),
                   background: isActive ? "linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(139, 92, 246, 0.4) 100%)" : "transparent",
                   color: isActive ? "#FFFFFF" : "#FFFFFF",
                   "&:hover": {
@@ -235,13 +235,13 @@ export const AppShell: React.FC = () => {
                 <ListItemIcon
                   sx={{
                     color: isActive ? "#FFFFFF" : "#FFFFFF",
-                    minWidth: drawerCollapsed ? 0 : 40,
+                    minWidth: isMobile ? 40 : (drawerCollapsed ? 0 : 40),
                     filter: isActive ? "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" : "none",
                   }}
                 >
                   {item.icon}
                 </ListItemIcon>
-                <Collapse in={!drawerCollapsed} orientation="horizontal">
+                <Collapse in={!isMobile && !drawerCollapsed} orientation="horizontal">
                   <ListItemText primary={item.label} />
                 </Collapse>
               </ListItemButton>
@@ -383,9 +383,11 @@ export const AppShell: React.FC = () => {
           }}
           sx={{
             display: { xs: "block", md: "none" },
+            zIndex: 1400, // Higher than AppBar
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
-              width: drawerWidth,
+              width: { xs: "100%", sm: drawerWidth },
+              zIndex: 1400,
             },
           }}
         >
