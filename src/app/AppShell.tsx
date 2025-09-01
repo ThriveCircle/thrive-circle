@@ -252,6 +252,100 @@ export const AppShell: React.FC = () => {
     </Box>
   );
 
+  // Mobile-specific drawer that always shows full menu
+  const mobileDrawer = (
+    <Box>
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <img src={logoDataUrl} alt="Logo" style={{ width: 40, height: 40 }} />
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ 
+              color: "#FFFFFF", 
+              fontWeight: "bold",
+              textShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+              letterSpacing: "0.5px",
+            }}
+          >
+            Thrive Circle
+          </Typography>
+        </Box>
+        <IconButton 
+          onClick={handleDrawerToggle}
+          size="small"
+          sx={{
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+            color: '#FFFFFF',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.25)',
+              transform: 'scale(1.1)',
+              boxShadow: '0 4px 12px rgba(255, 255, 255, 0.3)',
+            },
+            transition: 'all 0.2s ease',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+          }}
+        >
+          <ChevronLeftIcon />
+        </IconButton>
+      </Toolbar>
+      <List>
+        {navigationItems.map((item) => {
+          const isActive =
+            item.path === "/"
+              ? location.pathname === "/"
+              : location.pathname === item.path;
+          return (
+            <ListItem key={item.path} disablePadding>
+              <ListItemButton
+                selected={isActive}
+                onClick={() => {
+                  handleNavigation(item.path);
+                  handleDrawerToggle(); // Close drawer after navigation on mobile
+                }}
+                sx={{
+                  borderRadius: 2,
+                  mx: 1,
+                  minHeight: 48,
+                  justifyContent: "flex-start",
+                  background: isActive ? "linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(139, 92, 246, 0.4) 100%)" : "transparent",
+                  color: isActive ? "#FFFFFF" : "#FFFFFF",
+                  "&:hover": {
+                    background: isActive 
+                      ? "linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(139, 92, 246, 0.5) 100%)" 
+                      : "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(139, 92, 246, 0.2) 100%)",
+                    transform: "translateX(4px)",
+                  },
+                  transition: "all 0.2s ease",
+                  "&.Mui-selected": {
+                    background: "linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(139, 92, 246, 0.4) 100%)",
+                    color: "#FFFFFF",
+                    boxShadow: "0 2px 8px rgba(255, 255, 255, 0.2)",
+                    "&:hover": {
+                      background: "linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(139, 92, 246, 0.5) 100%)",
+                    },
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    color: isActive ? "#FFFFFF" : "#FFFFFF",
+                    minWidth: 40,
+                    filter: isActive ? "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" : "none",
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
+    </Box>
+  );
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -391,7 +485,7 @@ export const AppShell: React.FC = () => {
             },
           }}
         >
-          {drawer}
+          {mobileDrawer}
         </Drawer>
 
         {/* Desktop drawer */}
