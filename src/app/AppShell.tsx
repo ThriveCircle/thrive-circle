@@ -33,14 +33,14 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
   Business as BusinessIcon,
-  Group as GroupIcon,
+  People as PeopleIcon,
   Psychology as PsychologyIcon,
-  Assignment as AssignmentIcon,
-  CalendarToday as CalendarIcon,
-  CheckCircle as CheckCircleIcon,
+  School as SchoolIcon,
+  Event as EventIcon,
+  Task as TaskIcon,
   Chat as ChatIcon,
-  Payment as PaymentIcon,
-  Analytics as AnalyticsIcon,
+  Receipt as ReceiptIcon,
+  BarChart as BarChartIcon,
   AdminPanelSettings as AdminIcon,
   Person as PersonIcon,
 } from "@mui/icons-material";
@@ -50,15 +50,15 @@ const collapsedDrawerWidth = 72;
 
 const navigationItems = [
   { path: "/", label: "Dashboard", icon: <DashboardIcon /> },
-  { path: "/clients", label: "Clients", icon: <GroupIcon /> },
+  { path: "/clients", label: "Clients", icon: <PeopleIcon /> },
   { path: "/coaches", label: "Coaches", icon: <PsychologyIcon /> },
-  { path: "/programs", label: "Programs", icon: <AssignmentIcon /> },
+  { path: "/programs", label: "Programs", icon: <SchoolIcon /> },
   { path: "/assessments", label: "Assessments", icon: <AssessmentIcon /> },
-  { path: "/sessions", label: "Sessions", icon: <CalendarIcon /> },
-  { path: "/tasks", label: "Tasks", icon: <CheckCircleIcon /> },
+  { path: "/sessions", label: "Sessions", icon: <EventIcon /> },
+  { path: "/tasks", label: "Tasks", icon: <TaskIcon /> },
   { path: "/messages", label: "Messages", icon: <ChatIcon /> },
-  { path: "/billing", label: "Billing", icon: <PaymentIcon /> },
-  { path: "/reports", label: "Reports", icon: <AnalyticsIcon /> },
+  { path: "/billing", label: "Billing", icon: <ReceiptIcon /> },
+  { path: "/reports", label: "Reports", icon: <BarChartIcon /> },
   { path: "/ai-coach", label: "AI Coach", icon: <SmartToyIcon /> },
   { path: "/settings", label: "Settings", icon: <SettingsIcon /> },
 ];
@@ -155,7 +155,7 @@ export const AppShell: React.FC = () => {
       <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Collapse in={!drawerCollapsed} orientation="horizontal">
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <img src="/logo.svg" alt="Logo" style={{ width: 32, height: 32 }} />
+            <img src="/logo.png" alt="Logo" style={{ width: 32, height: 32 }} />
             <Typography
               variant="h6"
               noWrap
@@ -167,7 +167,7 @@ export const AppShell: React.FC = () => {
                 letterSpacing: "0.5px",
               }}
             >
-              thrive_circle
+              Thrive Circle
             </Typography>
           </Box>
         </Collapse>
@@ -268,9 +268,10 @@ export const AppShell: React.FC = () => {
             <MenuIcon />
           </IconButton>
 
-          <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}>
+            <img src="/logo.png" alt="Logo" style={{ width: 28, height: 28 }} />
             <Typography variant="h6" noWrap sx={{ fontWeight: "bold" }}>
-              Dashboard
+              Thrive Circle
             </Typography>
           </Box>
 

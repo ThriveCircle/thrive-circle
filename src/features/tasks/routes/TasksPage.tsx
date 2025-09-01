@@ -29,7 +29,7 @@ import {
   TrendingUp as TrendingUpIcon,
   Timeline as TimelineIcon,
   Business as BusinessIcon,
-  CalendarToday as CalendarIcon,
+  Event as EventIcon,
   Check as CheckIcon,
   Save as SaveIcon,
 } from '@mui/icons-material';
@@ -396,7 +396,7 @@ export const TasksPage: React.FC = () => {
                   </Box>
                   
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                    <CalendarIcon fontSize="small" color="action" />
+                    <EventIcon fontSize="small" color="action" />
                     <Typography variant="caption" color="text.secondary">
                       Target: {dayjs(goal.targetDate).format('MMM DD, YYYY')}
                     </Typography>
@@ -503,7 +503,7 @@ export const TasksPage: React.FC = () => {
                     </Typography>
                     
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <CalendarIcon fontSize="small" color="action" />
+                      <EventIcon fontSize="small" color="action" />
                       <Typography variant="caption" color="text.secondary">
                         {dayjs(milestone.targetDate).format('MMM DD, YYYY')}
                       </Typography>
