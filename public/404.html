@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#6750A4" />
+    <meta
+      name="description"
+      content="Thrive Circle - Comprehensive coaching management platform built with React and Material UI v5"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>Thrive Circle - Coaching Management Platform</title>
+    <script>
+      // SPA routing fallback for GitHub Pages
+      // This script redirects all 404s to index.html for client-side routing
+      (function(){
+        let redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect != location.href) {
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script>
+      // Fallback for direct navigation to routes
+      const path = window.location.pathname;
+      if (path !== '/' && !path.includes('.')) {
+        sessionStorage.redirect = location.href;
+        location.replace('/');
+      }
+    </script>
+  </body>
+</html>
