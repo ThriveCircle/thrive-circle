@@ -371,8 +371,6 @@ export const AppShell: React.FC = () => {
           </IconButton>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}>
-            <img src={logoDataUrl} alt="Logo" style={{ width: 36, height: 36 }} />
-            
             {/* Client Selector */}
             <FormControl size="small" sx={{ minWidth: 200 }}>
               <Select
