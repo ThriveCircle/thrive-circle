@@ -270,13 +270,8 @@ export const AppShell: React.FC = () => {
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}>
             <img src="/logo.png" alt="Logo" style={{ width: 36, height: 36 }} />
-            <Typography variant="h6" noWrap sx={{ fontWeight: "bold" }}>
-              Thrive Circle
-            </Typography>
-          </Box>
-
-                    {/* Client Selector */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mr: 2 }}>
+            
+            {/* Client Selector */}
             <FormControl size="small" sx={{ minWidth: 200 }}>
               <Select
                 value={selectedClient}
