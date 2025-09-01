@@ -224,75 +224,86 @@ export const CoachesPage: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Coaches</Typography>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between', 
+        alignItems: { xs: 'stretch', sm: 'center' }, 
+        gap: { xs: 2, sm: 0 },
+        mb: 3 
+      }}>
+        <Typography variant="h4" sx={{ fontSize: { xs: '1.75rem', sm: '2rem' } }}>Coaches</Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => navigate('/coaches/new')}
+          sx={{ 
+            minWidth: { xs: '100%', sm: 'auto' },
+            fontSize: { xs: '0.875rem', sm: '1rem' }
+          }}
         >
           Add Coach
         </Button>
       </Box>
 
       {/* Summary Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={6} sm={6} md={3}>
           <Card sx={{ background: 'linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)', color: 'white' }}>
-            <CardContent>
+            <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                     {coaches.filter((c: Coach) => c.status === 'active').length}
                   </Typography>
-                  <Typography variant="body2">Active Coaches</Typography>
+                  <Typography variant="caption" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Active Coaches</Typography>
                 </Box>
-                <PsychologyIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                <PsychologyIcon sx={{ fontSize: { xs: 24, sm: 40 }, opacity: 0.8 }} />
               </Box>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <Card sx={{ background: 'linear-gradient(135deg, #FF9800 0%, #FFB74D 100%)', color: 'white' }}>
-            <CardContent>
+            <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                     {pendingCoaches.length}
                   </Typography>
-                  <Typography variant="body2">Pending Approval</Typography>
+                  <Typography variant="caption" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Pending Approval</Typography>
                 </Box>
-                <PendingIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                <PendingIcon sx={{ fontSize: { xs: 24, sm: 40 }, opacity: 0.8 }} />
               </Box>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <Card sx={{ background: 'linear-gradient(135deg, #2196F3 0%, #42A5F5 100%)', color: 'white' }}>
-            <CardContent>
+            <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                     {coaches.reduce((sum: number, c: Coach) => sum + (c.clients?.length || 0), 0)}
                   </Typography>
-                  <Typography variant="body2">Total Clients</Typography>
+                  <Typography variant="caption" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Total Clients</Typography>
                 </Box>
-                <GroupIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                <GroupIcon sx={{ fontSize: { xs: 24, sm: 40 }, opacity: 0.8 }} />
               </Box>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <Card sx={{ background: 'linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%)', color: 'white' }}>
-            <CardContent>
+            <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                     ${coaches.reduce((sum: number, c: Coach) => sum + (c.totalEarnings || 0), 0).toLocaleString()}
                   </Typography>
-                  <Typography variant="body2">Total Earnings</Typography>
+                  <Typography variant="caption" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Total Earnings</Typography>
                 </Box>
-                <MoneyIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                <MoneyIcon sx={{ fontSize: { xs: 24, sm: 40 }, opacity: 0.8 }} />
               </Box>
             </CardContent>
           </Card>

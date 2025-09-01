@@ -176,15 +176,25 @@ export const MessagesPage: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ mb: 3 }}>Messages</Typography>
+      <Typography variant="h4" sx={{ 
+        mb: 3, 
+        fontSize: { xs: '1.75rem', sm: '2rem' } 
+      }}>Messages</Typography>
       
       <Grid container spacing={3}>
         {/* Message Threads */}
         <Grid item xs={12} md={8}>
           <Card>
             <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6">Conversations</Typography>
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between', 
+                alignItems: { xs: 'stretch', sm: 'center' }, 
+                gap: { xs: 2, sm: 0 },
+                mb: 2 
+              }}>
+                <Typography variant="h6" sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Conversations</Typography>
                 <TextField
                   size="small"
                   placeholder="Search conversations..."
@@ -197,7 +207,10 @@ export const MessagesPage: React.FC = () => {
                       </InputAdornment>
                     ),
                   }}
-                  sx={{ width: 300 }}
+                  sx={{ 
+                    width: { xs: '100%', sm: 300 },
+                    minWidth: { xs: '100%', sm: 'auto' }
+                  }}
                 />
               </Box>
               
