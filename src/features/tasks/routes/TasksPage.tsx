@@ -237,34 +237,14 @@ export const TasksPage: React.FC = () => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'error';
-      case 'medium': return 'warning';
-      case 'low': return 'success';
-      default: return 'default';
-    }
-  };
-
   const getClientName = (clientId: string) => {
     const client = clients.find((c: Client) => c.id === clientId);
     return client?.name || 'Unknown Client';
   };
 
-  const getCoachName = (coachId: string) => {
-    const coach = coaches.find((c: Coach) => c.id === coachId);
-    return coach?.name || 'Unknown Coach';
-  };
 
-  const getClientAvatar = (clientId: string) => {
-    const client = clients.find((c: Client) => c.id === clientId);
-    return client?.avatar;
-  };
 
-  const getCoachAvatar = (coachId: string) => {
-    const coach = coaches.find((c: Coach) => c.id === coachId);
-    return coach?.avatar;
-  };
+
 
   const renderWorkflowChart = (goal: Goal) => {
     const completedMilestones = goal.milestones.filter(m => m.status === 'completed').length;
