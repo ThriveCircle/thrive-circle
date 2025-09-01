@@ -7,9 +7,19 @@
     <meta name="theme-color" content="#6750A4" />
     <meta
       name="description"
-      content="thryve-circle - Comprehensive coaching management platform"
+      content="Thrive Circle - Comprehensive coaching management platform built with React and Material UI v5"
     />
-    <title>thryve-circle</title>
+    <title>Thrive Circle - Coaching Management Platform</title>
+    <script>
+      // SPA routing support for GitHub Pages
+      (function(){
+        let redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect != location.href) {
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
