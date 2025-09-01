@@ -155,7 +155,7 @@ export const AppShell: React.FC = () => {
       <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Collapse in={!drawerCollapsed} orientation="horizontal">
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <img src="/logo.png" alt="Logo" style={{ width: 40, height: 40 }} />
+            <img src={process.env.NODE_ENV === 'production' ? '/thrive-circle/logo.png' : '/logo.png'} alt="Logo" style={{ width: 40, height: 40 }} />
             <Typography
               variant="h6"
               noWrap
@@ -269,7 +269,7 @@ export const AppShell: React.FC = () => {
           </IconButton>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}>
-            <img src="/logo.png" alt="Logo" style={{ width: 36, height: 36 }} />
+            <img src={process.env.NODE_ENV === 'production' ? '/thrive-circle/logo.png' : '/logo.png'} alt="Logo" style={{ width: 36, height: 36 }} />
             
             {/* Client Selector */}
             <FormControl size="small" sx={{ minWidth: 200 }}>
