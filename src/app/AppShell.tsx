@@ -45,13 +45,13 @@ import {
   Person as PersonIcon,
 } from "@mui/icons-material";
 
-// Utility function to get the correct asset path
-const getAssetPath = (assetName: string) => {
-  if (process.env.NODE_ENV === 'production') {
-    return `https://rijantkar.github.io/thrive-circle/${assetName}`;
-  }
-  return `/${assetName}`;
-};
+// Inline SVG logo as data URL to avoid file path issues
+const logoDataUrl = "data:image/svg+xml;base64," + btoa(`
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="20" r="18" fill="#6750A4" stroke="#B69DF8" stroke-width="2"/>
+  <text x="20" y="25" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">TC</text>
+</svg>
+`);
 
 const drawerWidth = 280;
 const collapsedDrawerWidth = 72;
@@ -163,7 +163,7 @@ export const AppShell: React.FC = () => {
       <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Collapse in={!drawerCollapsed} orientation="horizontal">
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <img src={getAssetPath('logo.svg')} alt="Logo" style={{ width: 40, height: 40 }} />
+            <img src={logoDataUrl} alt="Logo" style={{ width: 40, height: 40 }} />
             <Typography
               variant="h6"
               noWrap
@@ -277,7 +277,7 @@ export const AppShell: React.FC = () => {
           </IconButton>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}>
-            <img src={getAssetPath('logo.svg')} alt="Logo" style={{ width: 36, height: 36 }} />
+            <img src={logoDataUrl} alt="Logo" style={{ width: 36, height: 36 }} />
             
             {/* Client Selector */}
             <FormControl size="small" sx={{ minWidth: 200 }}>
