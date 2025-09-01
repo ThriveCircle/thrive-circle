@@ -97,4 +97,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+], {
+  basename: process.env.NODE_ENV === 'production' ? '/thrive-circle' : '/',
+});
