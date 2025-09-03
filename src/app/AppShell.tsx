@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   AppBar,
@@ -141,6 +141,10 @@ export const AppShell: React.FC = () => {
   };
 
   const handleNavigation = (path: string) => {
+    // Prevent coaches from accessing Clients
+    if (userRole === "coach" && path === "/clients") {
+      return;
+    }
     navigate(path);
     if (isMobile) {
       setMobileOpen(false);
@@ -157,6 +161,11 @@ export const AppShell: React.FC = () => {
   ];
 
 
+  const visibleNavItems = useMemo(() => {
+    return userRole === "coach"
+      ? navigationItems.filter((item) => item.path !== "/clients")
+      : navigationItems;
+  }, [userRole]);
 
   const drawer = (
     <Box>
@@ -198,7 +207,7 @@ export const AppShell: React.FC = () => {
         </IconButton>
       </Toolbar>
       <List>
-        {navigationItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const isActive =
             item.path === "/"
               ? location.pathname === "/"
@@ -291,7 +300,7 @@ export const AppShell: React.FC = () => {
         </IconButton>
       </Toolbar>
       <List>
-        {navigationItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const isActive =
             item.path === "/"
               ? location.pathname === "/"
