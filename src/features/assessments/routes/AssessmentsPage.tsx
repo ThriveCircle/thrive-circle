@@ -9,10 +9,6 @@ import {
   Grid,
   Chip,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
   FormControl,
   InputLabel,
@@ -51,6 +47,7 @@ import {
 } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useRightDrawer } from '../../../app/providers/RightDrawerProvider';
 
 dayjs.extend(relativeTime);
 
@@ -109,13 +106,10 @@ interface Client {
 
 export const AssessmentsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showAssignmentDialog, setShowAssignmentDialog] = useState(false);
-  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
-  const [showBrandingDialog, setShowBrandingDialog] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as any });
 
   const queryClient = useQueryClient();
+  const { openDrawer, closeDrawer } = useRightDrawer();
 
   // Fetch assessment templates
   const { data: templatesData, isLoading: templatesLoading } = useQuery({
@@ -166,7 +160,7 @@ export const AssessmentsPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assessment-templates'] });
       setSnackbar({ open: true, message: 'Assessment template created successfully', severity: 'success' });
-      setShowCreateDialog(false);
+      closeDrawer();
     },
   });
 
@@ -182,7 +176,7 @@ export const AssessmentsPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assessment-assignments'] });
       setSnackbar({ open: true, message: 'Assessment assigned successfully', severity: 'success' });
-      setShowAssignmentDialog(false);
+      closeDrawer();
     },
   });
 
@@ -191,6 +185,68 @@ export const AssessmentsPage: React.FC = () => {
       ...templateData,
       createdBy: 'coach-1', // Mock coach ID
     });
+  };
+
+  const openCreateAssessmentDrawer = () => {
+    const CreateForm = () => {
+      const [name, setName] = useState('');
+      const [description, setDescription] = useState('');
+      const [category, setCategory] = useState('Life Coaching');
+      const [estimatedTime, setEstimatedTime] = useState<number>(20);
+      const [tags, setTags] = useState('');
+      const isDisabled = !name || createTemplateMutation.isPending;
+      return (
+        <Box>
+          <Typography variant="h6" sx={{ mb: 2 }}>Create New Assessment</Typography>
+          <Grid container spacing={2} sx={{ mt: 0 }}>
+            <Grid item xs={12}>
+              <TextField fullWidth label="Assessment Name" value={name} onChange={(e) => setName(e.target.value)} />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField fullWidth multiline rows={3} label="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel>Category</InputLabel>
+                <Select label="Category" value={category} onChange={(e) => setCategory(e.target.value as string)}>
+                  <MenuItem value="Life Coaching">Life Coaching</MenuItem>
+                  <MenuItem value="Career Development">Career Development</MenuItem>
+                  <MenuItem value="Wellness">Wellness</MenuItem>
+                  <MenuItem value="Leadership">Leadership</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField fullWidth label="Estimated Time (minutes)" type="number" value={estimatedTime} onChange={(e) => setEstimatedTime(parseInt(e.target.value) || 0)} InputProps={{ endAdornment: <InputAdornment position="end">min</InputAdornment> }} />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField fullWidth label="Tags" placeholder="comma,separated,tags" value={tags} onChange={(e) => setTags(e.target.value)} />
+            </Grid>
+          </Grid>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
+            <Button onClick={closeDrawer}>Cancel</Button>
+            <Button
+              variant="contained"
+              disabled={isDisabled}
+              onClick={() => handleCreateTemplate({
+                name,
+                description,
+                category,
+                estimatedTime,
+                tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+                isActive: true,
+                questions: [],
+                settings: { allowPaging: true, questionsPerPage: 1, allowTiming: false, allowResume: true, allowRandomization: false, showProgressBar: true, allowReview: true, allowComments: true, requireCompletion: true },
+                branding: { primaryColor: '#6750A4', secondaryColor: '#B69DF8', showCoachBranding: true, coachName: 'Sarah Johnson' },
+              })}
+            >
+              Create Assessment
+            </Button>
+          </Box>
+        </Box>
+      );
+    };
+    openDrawer(<CreateForm />, { title: 'Create New Assessment', width: 560 });
   };
 
   const handleAssignAssessment = (assignmentData: any) => {
@@ -229,7 +285,7 @@ export const AssessmentsPage: React.FC = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => setShowCreateDialog(true)}
+          onClick={openCreateAssessmentDrawer}
         >
           Create Assessment
         </Button>
@@ -282,10 +338,10 @@ export const AssessmentsPage: React.FC = () => {
                         <IconButton size="small">
                           <ViewIcon />
                         </IconButton>
-                        <IconButton size="small" onClick={() => setShowSettingsDialog(true)}>
+                        <IconButton size="small" onClick={() => {/* TODO: open settings drawer next */}}>
                           <SettingsIcon />
                         </IconButton>
-                        <IconButton size="small" onClick={() => setShowBrandingDialog(true)}>
+                        <IconButton size="small" onClick={() => {/* TODO: open branding drawer next */}}>
                           <BrandingIcon />
                         </IconButton>
                       </Box>
@@ -317,7 +373,7 @@ export const AssessmentsPage: React.FC = () => {
                         variant="outlined"
                         startIcon={<AssignmentIcon />}
                         onClick={() => {
-                          setShowAssignmentDialog(true);
+                          // TODO: Move assignment dialog to drawer in a follow-up
                         }}
                       >
                         Assign
@@ -346,7 +402,7 @@ export const AssessmentsPage: React.FC = () => {
               <Button
                 variant="outlined"
                 startIcon={<AssignmentIcon />}
-                onClick={() => setShowAssignmentDialog(true)}
+                onClick={() => { /* TODO: open assignment drawer next */ }}
               >
                 Assign Assessment
               </Button>
@@ -493,212 +549,6 @@ export const AssessmentsPage: React.FC = () => {
         </Grid>
       )}
 
-      {/* Create Assessment Dialog */}
-      <Dialog open={showCreateDialog} onClose={() => setShowCreateDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Create New Assessment</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Assessment Name"
-                placeholder="e.g., Life Satisfaction Assessment"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                label="Description"
-                placeholder="Describe the purpose and scope of this assessment..."
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel>Category</InputLabel>
-                <Select label="Category">
-                  <MenuItem value="life-coaching">Life Coaching</MenuItem>
-                  <MenuItem value="career-development">Career Development</MenuItem>
-                  <MenuItem value="wellness">Wellness</MenuItem>
-                  <MenuItem value="leadership">Leadership</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Estimated Time (minutes)"
-                type="number"
-                InputProps={{ endAdornment: <InputAdornment position="end">min</InputAdornment> }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Tags"
-                placeholder="Enter tags separated by commas..."
-                helperText="e.g., wellness, personal-development, goal-setting"
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowCreateDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={() => handleCreateTemplate({})}>
-            Create Assessment
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Assignment Dialog */}
-      <Dialog open={showAssignmentDialog} onClose={() => setShowAssignmentDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Assign Assessment</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>Assessment Template</InputLabel>
-                <Select label="Assessment Template">
-                  {templates.map((template: AssessmentTemplate) => (
-                    <MenuItem key={template.id} value={template.id}>
-                      {template.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>Client</InputLabel>
-                <Select label="Client">
-                  {clients.map((client: Client) => (
-                    <MenuItem key={client.id} value={client.id}>
-                      {client.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Due Date"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowAssignmentDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={() => handleAssignAssessment({})}>
-            Assign Assessment
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Settings Dialog */}
-      <Dialog open={showSettingsDialog} onClose={() => setShowSettingsDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Assessment Settings</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Display Options</Typography>
-              <FormControlLabel
-                control={<Switch defaultChecked />}
-                label="Allow Paging"
-              />
-              <FormControlLabel
-                control={<Switch defaultChecked />}
-                label="Show Progress Bar"
-              />
-              <FormControlLabel
-                control={<Switch />}
-                label="Allow Review"
-              />
-              <FormControlLabel
-                control={<Switch defaultChecked />}
-                label="Allow Comments"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Timing & Navigation</Typography>
-              <FormControlLabel
-                control={<Switch />}
-                label="Enable Time Limit"
-              />
-              <TextField
-                fullWidth
-                label="Time Limit (minutes)"
-                type="number"
-                sx={{ mt: 2 }}
-              />
-              <FormControlLabel
-                control={<Switch defaultChecked />}
-                label="Allow Resume"
-              />
-              <FormControlLabel
-                control={<Switch />}
-                label="Randomize Questions"
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowSettingsDialog(false)}>Cancel</Button>
-          <Button variant="contained">Save Settings</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Branding Dialog */}
-      <Dialog open={showBrandingDialog} onClose={() => setShowBrandingDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Assessment Branding</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Colors</Typography>
-              <TextField
-                fullWidth
-                label="Primary Color"
-                type="color"
-                defaultValue="#6750A4"
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Secondary Color"
-                type="color"
-                defaultValue="#B69DF8"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Branding Options</Typography>
-              <FormControlLabel
-                control={<Switch defaultChecked />}
-                label="Show Coach Branding"
-              />
-              <TextField
-                fullWidth
-                label="Coach Name"
-                defaultValue="Sarah Johnson"
-                sx={{ mt: 2 }}
-              />
-              <Button
-                variant="outlined"
-                startIcon={<UploadIcon />}
-                sx={{ mt: 2 }}
-              >
-                Upload Logo
-              </Button>
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowBrandingDialog(false)}>Cancel</Button>
-          <Button variant="contained">Save Branding</Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Snackbar */}
       <Snackbar

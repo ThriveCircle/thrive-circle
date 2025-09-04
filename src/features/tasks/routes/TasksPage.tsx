@@ -11,10 +11,6 @@ import {
   Chip,
   LinearProgress,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
   FormControl,
   InputLabel,
@@ -34,6 +30,7 @@ import {
   Save as SaveIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRightDrawer } from '../../../app/providers/RightDrawerProvider';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -108,14 +105,13 @@ interface Coach {
 export const TasksPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
-  const [showGoalDialog, setShowGoalDialog] = useState(false);
-  const [showMilestoneDialog, setShowMilestoneDialog] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [editingMilestone, setEditingMilestone] = useState<GoalMilestone | null>(null);
   const [newMetricValue, setNewMetricValue] = useState('');
   const [newMetricNotes, setNewMetricNotes] = useState('');
 
   const queryClient = useQueryClient();
+  const { openDrawer, closeDrawer } = useRightDrawer();
 
   // Fetch data
   const { data: goalsData } = useQuery({
@@ -158,7 +154,7 @@ export const TasksPage: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['goals'] });
-      setShowGoalDialog(false);
+      closeDrawer();
       setEditingGoal(null);
     },
   });
@@ -174,7 +170,7 @@ export const TasksPage: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['goals'] });
-      setShowMilestoneDialog(false);
+      closeDrawer();
       setEditingMilestone(null);
     },
   });
@@ -201,7 +197,7 @@ export const TasksPage: React.FC = () => {
 
   const handleEditGoal = (goal: Goal) => {
     setEditingGoal({ ...goal });
-    setShowGoalDialog(true);
+    openDrawer(renderGoalForm('Edit Goal'));
   };
 
   const handleSaveGoal = () => {
@@ -219,6 +215,152 @@ export const TasksPage: React.FC = () => {
       });
     }
   };
+
+  const renderGoalForm = (title: string) => (
+    <Box>
+      <Typography variant="h6" sx={{ mb: 2 }}>{title}</Typography>
+      <Grid container spacing={2} sx={{ mt: 0 }}>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Goal Title"
+            value={editingGoal?.title || ''}
+            onChange={(e) => setEditingGoal(prev => prev ? { ...prev, title: e.target.value } : null)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            label="Description"
+            value={editingGoal?.description || ''}
+            onChange={(e) => setEditingGoal(prev => prev ? { ...prev, description: e.target.value } : null)}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            label="Category"
+            value={editingGoal?.category || ''}
+            onChange={(e) => setEditingGoal(prev => prev ? { ...prev, category: e.target.value } : null)}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            type="date"
+            label="Target Date"
+            value={editingGoal?.targetDate ? dayjs(editingGoal.targetDate).format('YYYY-MM-DD') : ''}
+            onChange={(e) => setEditingGoal(prev => prev ? { ...prev, targetDate: dayjs(e.target.value).toISOString() } : null)}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <FormControl fullWidth>
+            <InputLabel>Client</InputLabel>
+            <Select
+              value={editingGoal?.clientId || ''}
+              onChange={(e) => setEditingGoal(prev => prev ? { ...prev, clientId: e.target.value } : null)}
+              label="Client"
+            >
+              {clients.map((client: Client) => (
+                <MenuItem key={client.id} value={client.id}>
+                  {client.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <FormControl fullWidth>
+            <InputLabel>Coach</InputLabel>
+            <Select
+              value={editingGoal?.coachId || ''}
+              onChange={(e) => setEditingGoal(prev => prev ? { ...prev, coachId: e.target.value } : null)}
+              label="Coach"
+            >
+              <MenuItem value="">None</MenuItem>
+              {coaches.map((coach: Coach) => (
+                <MenuItem key={coach.id} value={coach.id}>
+                  {coach.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <FormControl fullWidth>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={editingGoal?.status || 'active'}
+              onChange={(e) => setEditingGoal(prev => prev ? { ...prev, status: e.target.value as any } : null)}
+              label="Status"
+            >
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="completed">Completed</MenuItem>
+              <MenuItem value="paused">Paused</MenuItem>
+              <MenuItem value="cancelled">Cancelled</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            type="number"
+            label="Progress (%)"
+            value={editingGoal?.progress || 0}
+            onChange={(e) => setEditingGoal(prev => prev ? { ...prev, progress: parseInt(e.target.value) || 0 } : null)}
+            InputProps={{ endAdornment: <InputAdornment position="end">%</InputAdornment> }}
+          />
+        </Grid>
+      </Grid>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
+        <Button onClick={closeDrawer}>Cancel</Button>
+        <Button onClick={handleSaveGoal} variant="contained" startIcon={<SaveIcon />}>Save Goal</Button>
+      </Box>
+    </Box>
+  );
+
+  const renderMilestoneForm = () => (
+    <Box>
+      <Typography variant="h6" sx={{ mb: 2 }}>Add New Milestone</Typography>
+      <Grid container spacing={2} sx={{ mt: 0 }}>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Milestone Title"
+            value={editingMilestone?.title || ''}
+            onChange={(e) => setEditingMilestone(prev => prev ? { ...prev, title: e.target.value } : null)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            label="Description"
+            value={editingMilestone?.description || ''}
+            onChange={(e) => setEditingMilestone(prev => prev ? { ...prev, description: e.target.value } : null)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            type="date"
+            label="Target Date"
+            value={editingMilestone?.targetDate ? dayjs(editingMilestone.targetDate).format('YYYY-MM-DD') : ''}
+            onChange={(e) => setEditingMilestone(prev => prev ? { ...prev, targetDate: dayjs(e.target.value).toISOString() } : null)}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+      </Grid>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
+        <Button onClick={closeDrawer}>Cancel</Button>
+        <Button onClick={handleCreateMilestone} variant="contained">Create Milestone</Button>
+      </Box>
+    </Box>
+  );
 
   const handleUpdateMetric = (metricId: string) => {
     const value = parseFloat(newMetricValue);
@@ -337,7 +479,7 @@ export const TasksPage: React.FC = () => {
               metrics: [],
               createdAt: new Date().toISOString(),
             });
-            setShowGoalDialog(true);
+            openDrawer(renderGoalForm('Create New Goal'));
           }}
         >
           Create New Goal
@@ -463,7 +605,7 @@ export const TasksPage: React.FC = () => {
                   order: selectedGoal.milestones.length + 1,
                   createdAt: new Date().toISOString(),
                 });
-                setShowMilestoneDialog(true);
+                openDrawer(renderMilestoneForm());
               }}
             >
               Add Milestone
@@ -612,161 +754,7 @@ export const TasksPage: React.FC = () => {
         </Box>
       )}
 
-      {/* Goal Edit Dialog */}
-      <Dialog open={showGoalDialog} onClose={() => setShowGoalDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {editingGoal?.id ? 'Edit Goal' : 'Create New Goal'}
-        </DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Goal Title"
-                value={editingGoal?.title || ''}
-                onChange={(e) => setEditingGoal(prev => prev ? { ...prev, title: e.target.value } : null)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                label="Description"
-                value={editingGoal?.description || ''}
-                onChange={(e) => setEditingGoal(prev => prev ? { ...prev, description: e.target.value } : null)}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Category"
-                value={editingGoal?.category || ''}
-                onChange={(e) => setEditingGoal(prev => prev ? { ...prev, category: e.target.value } : null)}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                type="date"
-                label="Target Date"
-                value={editingGoal?.targetDate ? dayjs(editingGoal.targetDate).format('YYYY-MM-DD') : ''}
-                onChange={(e) => setEditingGoal(prev => prev ? { ...prev, targetDate: dayjs(e.target.value).toISOString() } : null)}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel>Client</InputLabel>
-                <Select
-                  value={editingGoal?.clientId || ''}
-                  onChange={(e) => setEditingGoal(prev => prev ? { ...prev, clientId: e.target.value } : null)}
-                  label="Client"
-                >
-                  {clients.map((client: Client) => (
-                    <MenuItem key={client.id} value={client.id}>
-                      {client.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel>Coach</InputLabel>
-                <Select
-                  value={editingGoal?.coachId || ''}
-                  onChange={(e) => setEditingGoal(prev => prev ? { ...prev, coachId: e.target.value } : null)}
-                  label="Coach"
-                >
-                  <MenuItem value="">None</MenuItem>
-                  {coaches.map((coach: Coach) => (
-                    <MenuItem key={coach.id} value={coach.id}>
-                      {coach.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={editingGoal?.status || 'active'}
-                  onChange={(e) => setEditingGoal(prev => prev ? { ...prev, status: e.target.value as any } : null)}
-                  label="Status"
-                >
-                  <MenuItem value="active">Active</MenuItem>
-                  <MenuItem value="completed">Completed</MenuItem>
-                  <MenuItem value="paused">Paused</MenuItem>
-                  <MenuItem value="cancelled">Cancelled</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                type="number"
-                label="Progress (%)"
-                value={editingGoal?.progress || 0}
-                onChange={(e) => setEditingGoal(prev => prev ? { ...prev, progress: parseInt(e.target.value) || 0 } : null)}
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
-                }}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowGoalDialog(false)}>Cancel</Button>
-          <Button onClick={handleSaveGoal} variant="contained" startIcon={<SaveIcon />}>
-            Save Goal
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Milestone Dialog */}
-      <Dialog open={showMilestoneDialog} onClose={() => setShowMilestoneDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Add New Milestone</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Milestone Title"
-                value={editingMilestone?.title || ''}
-                onChange={(e) => setEditingMilestone(prev => prev ? { ...prev, title: e.target.value } : null)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                label="Description"
-                value={editingMilestone?.description || ''}
-                onChange={(e) => setEditingMilestone(prev => prev ? { ...prev, description: e.target.value } : null)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                type="date"
-                label="Target Date"
-                value={editingMilestone?.targetDate ? dayjs(editingMilestone.targetDate).format('YYYY-MM-DD') : ''}
-                onChange={(e) => setEditingMilestone(prev => prev ? { ...prev, targetDate: dayjs(e.target.value).toISOString() } : null)}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowMilestoneDialog(false)}>Cancel</Button>
-          <Button onClick={handleCreateMilestone} variant="contained">
-            Create Milestone
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Goal & Milestone Drawers handled by RightDrawerProvider */}
     </Box>
   );
 };
