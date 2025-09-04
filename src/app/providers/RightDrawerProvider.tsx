@@ -45,15 +45,25 @@ export const RightDrawerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         anchor="right"
         open={isOpen}
         onClose={closeDrawer}
-        PaperProps={{ sx: { width, overflow: 'hidden' } }}
+        ModalProps={{
+          BackdropProps: {
+            sx: {
+              backdropFilter: 'blur(4px)',
+              backgroundColor: 'rgba(0,0,0,0.15)'
+            }
+          }
+        }}
+        PaperProps={{ sx: { width, overflow: 'hidden', borderTopLeftRadius: 8, borderBottomLeftRadius: 8 } }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', p: 2, gap: 1 }}>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>{title}</Typography>
-          <IconButton onClick={closeDrawer}>
-            <CloseIcon />
-          </IconButton>
+        <Box sx={{ position: 'sticky', top: 0, zIndex: 1, bgcolor: 'background.paper' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', p: 2, gap: 1 }}>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>{title}</Typography>
+            <IconButton onClick={closeDrawer}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <Divider />
         </Box>
-        <Divider />
         <motion.div
           initial={{ x: 40, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
