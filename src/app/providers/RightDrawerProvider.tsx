@@ -53,9 +53,9 @@ export const RightDrawerProvider: React.FC<{ children: React.ReactNode }> = ({ c
             }
           }
         }}
-        PaperProps={{ sx: { width, overflow: 'hidden', borderTopLeftRadius: 8, borderBottomLeftRadius: 8 } }}
+        PaperProps={{ sx: { width, overflow: 'hidden', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, backgroundColor: '#FFFFFF' } }}
       >
-        <Box sx={{ position: 'sticky', top: 0, zIndex: 1, bgcolor: 'background.paper' }}>
+        <Box sx={{ position: 'sticky', top: 0, zIndex: 1, bgcolor: '#FFFFFF' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', p: 2, gap: 1 }}>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>{title}</Typography>
             <IconButton onClick={closeDrawer}>
