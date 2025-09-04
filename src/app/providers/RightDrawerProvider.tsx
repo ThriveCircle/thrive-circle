@@ -53,7 +53,7 @@ export const RightDrawerProvider: React.FC<{ children: React.ReactNode }> = ({ c
             }
           }
         }}
-        PaperProps={{ sx: { width, overflow: 'hidden', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, backgroundColor: '#FFFFFF' } }}
+        PaperProps={{ sx: { width, overflow: 'hidden', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, backgroundColor: '#FFFFFF', backgroundImage: 'none', color: 'text.primary' } }}
       >
         <Box sx={{ position: 'sticky', top: 0, zIndex: 1, bgcolor: '#FFFFFF' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', p: 2, gap: 1 }}>
@@ -70,7 +70,7 @@ export const RightDrawerProvider: React.FC<{ children: React.ReactNode }> = ({ c
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           style={{ height: '100%', overflowY: 'auto' }}
         >
-          <Box sx={{ p: 2 }}>
+          <Box sx={{ p: 2, bgcolor: '#FFFFFF', minHeight: '100%', color: 'text.primary' }}>
             {content}
           </Box>
         </motion.div>
