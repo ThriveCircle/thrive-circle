@@ -187,6 +187,119 @@ export const AssessmentsPage: React.FC = () => {
     });
   };
 
+  // Drawer Forms as React Components (to satisfy hooks rules)
+  const AssignmentForm: React.FC = () => {
+    const templates = templatesData?.data || [];
+    const clients = clientsData?.data || [];
+    const [templateId, setTemplateId] = useState('');
+    const [clientId, setClientId] = useState('');
+    const [dueDate, setDueDate] = useState('');
+    const isDisabled = !templateId || !clientId || assignAssessmentMutation.isPending;
+    return (
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>Assign Assessment</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel>Assessment Template</InputLabel>
+              <Select label="Assessment Template" value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
+                {templates.map((template: AssessmentTemplate) => (
+                  <MenuItem key={template.id} value={template.id}>{template.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel>Client</InputLabel>
+              <Select label="Client" value={clientId} onChange={(e) => setClientId(e.target.value)}>
+                {clients.map((client: Client) => (
+                  <MenuItem key={client.id} value={client.id}>{client.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField fullWidth label="Due Date" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} InputLabelProps={{ shrink: true }} />
+          </Grid>
+        </Grid>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
+          <Button onClick={closeDrawer}>Cancel</Button>
+          <Button
+            variant="contained"
+            disabled={isDisabled}
+            onClick={() => handleAssignAssessment({ assessmentId: templateId, clientId, coachId: 'coach-1', dueDate })}
+          >
+            Assign Assessment
+          </Button>
+        </Box>
+      </Box>
+    );
+  };
+
+  const SettingsForm: React.FC = () => {
+    const [allowPaging, setAllowPaging] = useState(true);
+    const [showProgressBar, setShowProgressBar] = useState(true);
+    const [allowReview, setAllowReview] = useState(false);
+    const [allowComments, setAllowComments] = useState(true);
+    const [enableTimeLimit, setEnableTimeLimit] = useState(false);
+    const [timeLimit, setTimeLimit] = useState<number | ''>('');
+    return (
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>Assessment Settings</Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>Display Options</Typography>
+            <FormControlLabel control={<Switch checked={allowPaging} onChange={(_, v) => setAllowPaging(v)} />} label="Allow Paging" />
+            <FormControlLabel control={<Switch checked={showProgressBar} onChange={(_, v) => setShowProgressBar(v)} />} label="Show Progress Bar" />
+            <FormControlLabel control={<Switch checked={allowReview} onChange={(_, v) => setAllowReview(v)} />} label="Allow Review" />
+            <FormControlLabel control={<Switch checked={allowComments} onChange={(_, v) => setAllowComments(v)} />} label="Allow Comments" />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>Timing & Navigation</Typography>
+            <FormControlLabel control={<Switch checked={enableTimeLimit} onChange={(_, v) => setEnableTimeLimit(v)} />} label="Enable Time Limit" />
+            <TextField fullWidth label="Time Limit (minutes)" type="number" value={timeLimit} onChange={(e) => setTimeLimit(parseInt(e.target.value) || '')} sx={{ mt: 2 }} />
+            <FormControlLabel control={<Switch defaultChecked />} label="Allow Resume" />
+            <FormControlLabel control={<Switch />} label="Randomize Questions" />
+          </Grid>
+        </Grid>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
+          <Button onClick={closeDrawer}>Cancel</Button>
+          <Button variant="contained" onClick={closeDrawer}>Save Settings</Button>
+        </Box>
+      </Box>
+    );
+  };
+
+  const BrandingForm: React.FC = () => {
+    const [primaryColor, setPrimaryColor] = useState('#6750A4');
+    const [secondaryColor, setSecondaryColor] = useState('#B69DF8');
+    const [showCoachBranding, setShowCoachBranding] = useState(true);
+    const [coachName, setCoachName] = useState('Sarah Johnson');
+    return (
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>Assessment Branding</Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>Colors</Typography>
+            <TextField fullWidth label="Primary Color" type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} sx={{ mb: 2 }} />
+            <TextField fullWidth label="Secondary Color" type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>Branding Options</Typography>
+            <FormControlLabel control={<Switch checked={showCoachBranding} onChange={(_, v) => setShowCoachBranding(v)} />} label="Show Coach Branding" />
+            <TextField fullWidth label="Coach Name" value={coachName} onChange={(e) => setCoachName(e.target.value)} sx={{ mt: 2 }} />
+            <Button variant="outlined" startIcon={<UploadIcon />} sx={{ mt: 2 }}>Upload Logo</Button>
+          </Grid>
+        </Grid>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
+          <Button onClick={closeDrawer}>Cancel</Button>
+          <Button variant="contained" onClick={closeDrawer}>Save Branding</Button>
+        </Box>
+      </Box>
+    );
+  };
+
   const openCreateAssessmentDrawer = () => {
     const CreateForm = () => {
       const [name, setName] = useState('');
@@ -251,6 +364,18 @@ export const AssessmentsPage: React.FC = () => {
 
   const handleAssignAssessment = (assignmentData: any) => {
     assignAssessmentMutation.mutate(assignmentData);
+  };
+
+  const openAssignmentDrawer = () => {
+    openDrawer(<AssignmentForm />, { title: 'Assign Assessment', width: 480 });
+  };
+
+  const openSettingsDrawer = () => {
+    openDrawer(<SettingsForm />, { title: 'Assessment Settings', width: 560 });
+  };
+
+  const openBrandingDrawer = () => {
+    openDrawer(<BrandingForm />, { title: 'Assessment Branding', width: 560 });
   };
 
   const getStatusColor = (status: string) => {
@@ -338,10 +463,10 @@ export const AssessmentsPage: React.FC = () => {
                         <IconButton size="small">
                           <ViewIcon />
                         </IconButton>
-                        <IconButton size="small" onClick={() => {/* TODO: open settings drawer next */}}>
+                        <IconButton size="small" onClick={openSettingsDrawer}>
                           <SettingsIcon />
                         </IconButton>
-                        <IconButton size="small" onClick={() => {/* TODO: open branding drawer next */}}>
+                        <IconButton size="small" onClick={openBrandingDrawer}>
                           <BrandingIcon />
                         </IconButton>
                       </Box>
@@ -372,9 +497,7 @@ export const AssessmentsPage: React.FC = () => {
                         size="small"
                         variant="outlined"
                         startIcon={<AssignmentIcon />}
-                        onClick={() => {
-                          // TODO: Move assignment dialog to drawer in a follow-up
-                        }}
+                        onClick={openAssignmentDrawer}
                       >
                         Assign
                       </Button>
