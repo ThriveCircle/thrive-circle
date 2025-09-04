@@ -44,6 +44,7 @@ import {
   AdminPanelSettings as AdminIcon,
   Person as PersonIcon,
 } from "@mui/icons-material";
+import { UserProvider } from "./providers/UserContext";
 
 // Inline SVG logo as data URL to avoid file path issues
 const logoDataUrl = "data:image/svg+xml;base64," + btoa(`
@@ -77,9 +78,9 @@ export const AppShell: React.FC = () => {
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(
     null,
   );
-  const [userRole, setUserRole] = useState<"admin" | "coach" | "client">(
-    "admin",
-  );
+  const [userRole, setUserRole] = useState<"admin" | "coach" | "client">("admin");
+  const [currentCoachId, setCurrentCoachId] = useState<string | undefined>(undefined);
+  const [currentClientId, setCurrentClientId] = useState<string | undefined>(undefined);
   const [selectedClient, setSelectedClient] = useState<string>("");
   const [currentUser, setCurrentUser] = useState<{
     name: string;
@@ -133,6 +134,16 @@ export const AppShell: React.FC = () => {
       },
     };
     setCurrentUser(roleUsers[role]);
+    if (role === "coach") {
+      setCurrentCoachId("coach-1");
+      setCurrentClientId(undefined);
+    } else if (role === "client") {
+      setCurrentClientId("client-1");
+      setCurrentCoachId(undefined);
+    } else {
+      setCurrentCoachId(undefined);
+      setCurrentClientId(undefined);
+    }
     setUserMenuAnchor(null);
   };
 
@@ -141,10 +152,6 @@ export const AppShell: React.FC = () => {
   };
 
   const handleNavigation = (path: string) => {
-    // Prevent coaches from accessing Clients
-    if (userRole === "coach" && path === "/clients") {
-      return;
-    }
     navigate(path);
     if (isMobile) {
       setMobileOpen(false);
@@ -161,11 +168,7 @@ export const AppShell: React.FC = () => {
   ];
 
 
-  const visibleNavItems = useMemo(() => {
-    return userRole === "coach"
-      ? navigationItems.filter((item) => item.path !== "/clients")
-      : navigationItems;
-  }, [userRole]);
+  const visibleNavItems = useMemo(() => navigationItems, []);
 
   const drawer = (
     <Box>
@@ -384,7 +387,10 @@ export const AppShell: React.FC = () => {
             <FormControl size="small" sx={{ minWidth: 200 }}>
               <Select
                 value={selectedClient}
-                onChange={(e) => setSelectedClient(e.target.value)}
+                onChange={(e) => {
+                  setSelectedClient(e.target.value);
+                  setCurrentClientId(e.target.value || undefined);
+                }}
                 displayEmpty
                 sx={{
                   color: "#FFFFFF",
@@ -526,7 +532,18 @@ export const AppShell: React.FC = () => {
           minHeight: "calc(100vh - 64px)",
         }}
       >
-        <Outlet />
+        <UserProvider
+          value={{
+            role: userRole,
+            setRole: setUserRole,
+            currentCoachId,
+            setCurrentCoachId,
+            currentClientId,
+            setCurrentClientId,
+          }}
+        >
+          <Outlet />
+        </UserProvider>
       </Box>
 
       {/* User Menu */}
