@@ -392,6 +392,27 @@ export interface InvoiceItem {
   total: number;
 }
 
+export interface Invitation {
+  id: string;
+  coachId: string;
+  email: string;
+  name?: string;
+  status: 'pending' | 'accepted' | 'expired' | 'cancelled';
+  token: string;
+  createdAt: string;
+  acceptedAt?: string;
+}
+
+export interface CoachRequest {
+  id: string;
+  coachId: string;
+  clientId: string;
+  message?: string;
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  createdAt: string;
+  decidedAt?: string;
+}
+
 export interface DashboardSummary {
   activeClients: number;
   completionRate: number;

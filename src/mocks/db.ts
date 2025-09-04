@@ -19,6 +19,8 @@ import {
   ModerationReport,
   AuditLog,
   Invoice,
+  Invitation,
+  CoachRequest,
   DashboardSummary,
 } from "../lib/types";
 
@@ -2142,6 +2144,10 @@ const invoices: Invoice[] = Array.from({ length: 24 }, (_, i) => ({
     .toISOString(),
 }));
 
+// Mock Invitations and Coach Requests
+const invitations: Invitation[] = [];
+const coachRequests: CoachRequest[] = [];
+
 // Mock Dashboard Summary
 const dashboardSummary: DashboardSummary = {
   activeClients: clients.filter((c) => c.status === "active").length,
@@ -2225,4 +2231,6 @@ export {
   assessmentAssignments,
   assessmentResults,
   dashboardSummary,
+  invitations,
+  coachRequests,
 };

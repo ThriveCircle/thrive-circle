@@ -50,7 +50,9 @@ import {
   Warning as WarningIcon,
   Info as InfoIcon,
 } from '@mui/icons-material';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useUserContext } from '../../../app/providers/UserContext';
+import { useRightDrawer } from '../../../app/providers/RightDrawerProvider';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -105,6 +107,9 @@ const getStatusIcon = (status: string) => {
 
 export const ClientsPage: React.FC = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { role, currentCoachId } = useUserContext();
+  const { openDrawer, closeDrawer } = useRightDrawer();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
@@ -119,11 +124,66 @@ export const ClientsPage: React.FC = () => {
         pageSize: pageSize.toString(),
         ...(search && { q: search }),
         ...(statusFilter && { status: statusFilter }),
+        ...(role === 'coach' && currentCoachId ? { coachId: currentCoachId } : {}),
       });
       const response = await fetch(`/api/clients?${params}`);
       return response.json();
     },
   });
+
+  const inviteClientMutation = useMutation({
+    mutationFn: async (payload: { email: string; name?: string }) => {
+      const response = await fetch('/api/invitations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ coachId: currentCoachId, ...payload }),
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      closeDrawer();
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    }
+  });
+
+  const showInviteDrawer = () => {
+    const InviteForm = () => {
+      const [email, setEmail] = useState('');
+      const [name, setName] = useState('');
+      const isDisabled = !email || inviteClientMutation.isPending;
+      return (
+        <Box>
+          <Typography variant="h6" sx={{ mb: 2 }}>Invite Client</Typography>
+          <TextField
+            fullWidth
+            label="Client Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Client Name (optional)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            sx={{ mb: 3 }}
+          />
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+            <Button onClick={closeDrawer}>Cancel</Button>
+            <Button
+              variant="contained"
+              onClick={() => inviteClientMutation.mutate({ email, name: name || undefined })}
+              disabled={isDisabled}
+            >
+              Send Invite
+            </Button>
+          </Box>
+        </Box>
+      );
+    };
+    openDrawer(<InviteForm />, { title: 'Invite Client', width: 420 });
+  };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
@@ -169,6 +229,7 @@ export const ClientsPage: React.FC = () => {
   }
 
   const clients = clientsData?.data || [];
+  const hasNoClients = role === 'coach' && ((clientsData?.data?.length || 0) === 0);
   const upcomingSessions = getUpcomingSessions();
   const recentActivity = getRecentActivity();
 
@@ -195,6 +256,21 @@ export const ClientsPage: React.FC = () => {
           Add Client
         </Button>
       </Box>
+
+      {/* Empty state for coaches without clients */}
+      {hasNoClients && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h6" sx={{ mb: 1 }}>No clients attached</Typography>
+                <Typography variant="body2" color="text.secondary">Invite your first client by email to get started.</Typography>
+              </Box>
+              <Button variant="contained" onClick={showInviteDrawer}>Invite Client</Button>
+            </Box>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Summary Cards */}
       <Grid container spacing={3} sx={{ mb: 3 }}>

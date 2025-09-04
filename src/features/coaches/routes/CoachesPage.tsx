@@ -56,6 +56,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRightDrawer } from '../../../app/providers/RightDrawerProvider';
+import { useUserContext } from '../../../app/providers/UserContext';
 
 dayjs.extend(relativeTime);
 
@@ -119,6 +120,7 @@ export const CoachesPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { openDrawer, closeDrawer } = useRightDrawer();
+  const { role, currentClientId } = useUserContext();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [specialtyFilter, setSpecialtyFilter] = useState('');
@@ -216,6 +218,50 @@ export const CoachesPage: React.FC = () => {
     if (selectedCoach) {
       approveCoachMutation.mutate(selectedCoach.id);
     }
+  };
+
+  const requestCoachingMutation = useMutation({
+    mutationFn: async ({ coachId, message }: { coachId: string; message?: string }) => {
+      const response = await fetch('/api/coach-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ coachId, clientId: currentClientId, message }),
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      closeDrawer();
+    },
+  });
+
+  const openRequestDrawer = (coach: Coach) => {
+    const RequestForm = () => {
+      const [message, setMessage] = useState('');
+      return (
+        <Box>
+          <Typography variant="h6" sx={{ mb: 2 }}>Request Coaching</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            You are requesting coaching from {coach.name}. Add an optional note for context.
+          </Typography>
+          <TextField
+            label="Message (optional)"
+            multiline
+            minRows={3}
+            fullWidth
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            sx={{ mb: 3 }}
+          />
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+            <Button onClick={closeDrawer}>Cancel</Button>
+            <Button variant="contained" onClick={() => requestCoachingMutation.mutate({ coachId: coach.id, message })}>
+              Send Request
+            </Button>
+          </Box>
+        </Box>
+      );
+    };
+    openDrawer(<RequestForm />, { title: 'Request Coaching', width: 420 });
   };
 
   const getPendingCoaches = () => {
@@ -521,6 +567,13 @@ export const CoachesPage: React.FC = () => {
                                 onClick={() => handleApproveCoach(coach)}
                               >
                                 <CheckCircleIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {role === 'client' && (
+                            <Tooltip title="Request Coaching">
+                              <IconButton size="small" color="primary" onClick={() => openRequestDrawer(coach)}>
+                                <MessageIcon />
                               </IconButton>
                             </Tooltip>
                           )}

@@ -19,6 +19,8 @@ import {
   auditLogs,
   invoices,
   dashboardSummary,
+  invitations,
+  coachRequests,
 } from "./db";
 import type { Goal, GoalMilestone, GoalMetric, MetricHistory } from "../lib/types";
 
@@ -79,9 +81,10 @@ export const handlers = [
     const pageSize = parseInt(url.searchParams.get("pageSize") || "10");
     const search = url.searchParams.get("q") || undefined;
     const status = url.searchParams.get("status") || undefined;
+    const coachId = url.searchParams.get("coachId") || undefined;
 
     return HttpResponse.json(
-      getPaginatedResults(clients, page, pageSize, search, { status }),
+      getPaginatedResults(clients, page, pageSize, search, { status, coachId }),
     );
   }),
 
@@ -125,10 +128,71 @@ export const handlers = [
     const page = parseInt(url.searchParams.get("page") || "1");
     const pageSize = parseInt(url.searchParams.get("pageSize") || "10");
     const search = url.searchParams.get("q") || undefined;
+    const status = url.searchParams.get("status") || undefined;
+    const specialty = url.searchParams.get("specialty") || undefined;
 
     return HttpResponse.json(
-      getPaginatedResults(coaches, page, pageSize, search),
+      getPaginatedResults(coaches, page, pageSize, search, { status, specialty }),
     );
+  }),
+  http.put("/api/coaches/:id/approve", async ({ params, request }) => {
+    const coach = coaches.find((c) => c.id === params.id);
+    if (!coach) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    coach.status = body.status || "active";
+    coach.updatedAt = new Date().toISOString();
+    return HttpResponse.json(coach);
+  }),
+
+  // Invitations
+  http.get("/api/invitations", ({ request }) => {
+    const url = new URL(request.url);
+    const coachId = url.searchParams.get("coachId") || undefined;
+    const email = url.searchParams.get("email") || undefined;
+    let results = invitations;
+    if (coachId) results = results.filter((i) => i.coachId === coachId);
+    if (email) results = results.filter((i) => i.email === email);
+    return HttpResponse.json({ data: results });
+  }),
+
+  http.post("/api/invitations", async ({ request }) => {
+    const body = (await request.json()) as { coachId: string; email: string; name?: string };
+    const newInvitation = {
+      id: `inv-${Date.now()}`,
+      coachId: body.coachId,
+      email: body.email,
+      name: body.name,
+      status: "pending" as const,
+      token: Math.random().toString(36).slice(2),
+      createdAt: new Date().toISOString(),
+    };
+    invitations.push(newInvitation);
+    return HttpResponse.json(newInvitation, { status: 201 });
+  }),
+
+  // Coach Requests
+  http.get("/api/coach-requests", ({ request }) => {
+    const url = new URL(request.url);
+    const coachId = url.searchParams.get("coachId") || undefined;
+    const clientId = url.searchParams.get("clientId") || undefined;
+    let results = coachRequests;
+    if (coachId) results = results.filter((r) => r.coachId === coachId);
+    if (clientId) results = results.filter((r) => r.clientId === clientId);
+    return HttpResponse.json({ data: results });
+  }),
+
+  http.post("/api/coach-requests", async ({ request }) => {
+    const body = (await request.json()) as { coachId: string; clientId: string; message?: string };
+    const newRequest = {
+      id: `req-${Date.now()}`,
+      coachId: body.coachId,
+      clientId: body.clientId,
+      message: body.message,
+      status: "pending" as const,
+      createdAt: new Date().toISOString(),
+    };
+    coachRequests.push(newRequest);
+    return HttpResponse.json(newRequest, { status: 201 });
   }),
 
   http.get("/api/coaches/:id", ({ params }) => {

@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   AppBar,
   Box,
@@ -255,20 +254,9 @@ export const AppShell: React.FC = () => {
                 >
                   {item.icon}
                 </ListItemIcon>
-                {!isMobile && (
-                  <AnimatePresence initial={false}>
-                    {!drawerCollapsed && (
-                      <motion.div
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -8 }}
-                        transition={{ duration: 0.18, ease: 'easeOut' }}
-                      >
-                        <ListItemText primary={item.label} />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                )}
+                <Collapse in={!isMobile && !drawerCollapsed} orientation="horizontal">
+                  <ListItemText primary={item.label} />
+                </Collapse>
               </ListItemButton>
             </ListItem>
           );
