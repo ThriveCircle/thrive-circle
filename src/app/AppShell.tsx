@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   AppBar,
   Box,
@@ -45,6 +46,7 @@ import {
   Person as PersonIcon,
 } from "@mui/icons-material";
 import { UserProvider } from "./providers/UserContext";
+import { RightDrawerProvider } from "./providers/RightDrawerProvider";
 
 // Inline SVG logo as data URL to avoid file path issues
 const logoDataUrl = "data:image/svg+xml;base64," + btoa(`
@@ -253,9 +255,20 @@ export const AppShell: React.FC = () => {
                 >
                   {item.icon}
                 </ListItemIcon>
-                <Collapse in={!isMobile && !drawerCollapsed} orientation="horizontal">
-                  <ListItemText primary={item.label} />
-                </Collapse>
+                {!isMobile && (
+                  <AnimatePresence initial={false}>
+                    {!drawerCollapsed && (
+                      <motion.div
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -8 }}
+                        transition={{ duration: 0.18, ease: 'easeOut' }}
+                      >
+                        <ListItemText primary={item.label} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                )}
               </ListItemButton>
             </ListItem>
           );
@@ -542,7 +555,9 @@ export const AppShell: React.FC = () => {
             setCurrentClientId,
           }}
         >
-          <Outlet />
+          <RightDrawerProvider>
+            <Outlet />
+          </RightDrawerProvider>
         </UserProvider>
       </Box>
 

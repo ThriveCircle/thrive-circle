@@ -34,10 +34,6 @@ import {
   ListItemText,
   ListItemAvatar,
   ListItemSecondaryAction,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Rating,
 } from '@mui/material';
 import {
@@ -59,6 +55,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useRightDrawer } from '../../../app/providers/RightDrawerProvider';
 
 dayjs.extend(relativeTime);
 
@@ -121,13 +118,13 @@ const getStatusIcon = (status: string) => {
 export const CoachesPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { openDrawer, closeDrawer } = useRightDrawer();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [specialtyFilter, setSpecialtyFilter] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [activeTab, setActiveTab] = useState(0);
-  const [showApprovalDialog, setShowApprovalDialog] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
 
   const { data: coachesData, isLoading } = useQuery({
@@ -156,7 +153,7 @@ export const CoachesPage: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coaches'] });
-      setShowApprovalDialog(false);
+      closeDrawer();
       setSelectedCoach(null);
     },
   });
@@ -186,7 +183,33 @@ export const CoachesPage: React.FC = () => {
 
   const handleApproveCoach = (coach: Coach) => {
     setSelectedCoach(coach);
-    setShowApprovalDialog(true);
+    openDrawer(
+      (
+        <Box>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            Approve Coach
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Are you sure you want to approve <strong>{coach.name}</strong>?
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            This will activate their account and allow them to start accepting clients.
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+            <Button onClick={closeDrawer}>Cancel</Button>
+            <Button
+              onClick={() => approveCoachMutation.mutate(coach.id)}
+              variant="contained"
+              color="success"
+              startIcon={<CheckCircleIcon />}
+            >
+              Approve Coach
+            </Button>
+          </Box>
+        </Box>
+      ),
+      { title: 'Approve Coach', width: 420 }
+    );
   };
 
   const confirmApproval = () => {
@@ -654,33 +677,7 @@ export const CoachesPage: React.FC = () => {
         </Card>
       )}
 
-      {/* Approval Dialog */}
-      <Dialog open={showApprovalDialog} onClose={() => setShowApprovalDialog(false)}>
-        <DialogTitle>Approve Coach</DialogTitle>
-        <DialogContent>
-          {selectedCoach && (
-            <Box>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                Are you sure you want to approve <strong>{selectedCoach.name}</strong>?
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                This will activate their account and allow them to start accepting clients.
-              </Typography>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowApprovalDialog(false)}>Cancel</Button>
-          <Button
-            onClick={confirmApproval}
-            variant="contained"
-            color="success"
-            startIcon={<CheckCircleIcon />}
-          >
-            Approve Coach
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Drawer replaces approval dialog */}
     </Box>
   );
 };
