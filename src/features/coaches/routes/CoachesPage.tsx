@@ -127,7 +127,6 @@ export const CoachesPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [activeTab, setActiveTab] = useState(0);
-  const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
 
   const { data: coachesData, isLoading } = useQuery({
     queryKey: ['coaches', page, pageSize, search, statusFilter, specialtyFilter],
@@ -156,7 +155,6 @@ export const CoachesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coaches'] });
       closeDrawer();
-      setSelectedCoach(null);
     },
   });
 
@@ -184,7 +182,6 @@ export const CoachesPage: React.FC = () => {
   };
 
   const handleApproveCoach = (coach: Coach) => {
-    setSelectedCoach(coach);
     openDrawer(
       (
         <Box>
@@ -212,12 +209,6 @@ export const CoachesPage: React.FC = () => {
       ),
       { title: 'Approve Coach', width: 420 }
     );
-  };
-
-  const confirmApproval = () => {
-    if (selectedCoach) {
-      approveCoachMutation.mutate(selectedCoach.id);
-    }
   };
 
   const requestCoachingMutation = useMutation({
@@ -264,16 +255,6 @@ export const CoachesPage: React.FC = () => {
     openDrawer(<RequestForm />, { title: 'Request Coaching', width: 420 });
   };
 
-  const getPendingCoaches = () => {
-    return coachesData?.data?.filter((coach: Coach) => coach.status === 'pending') || [];
-  };
-
-  const getTopPerformers = () => {
-    return coachesData?.data?.filter((coach: Coach) => 
-      coach.rating && coach.rating >= 4.5
-    ).sort((a: Coach, b: Coach) => (b.rating || 0) - (a.rating || 0)).slice(0, 5) || [];
-  };
-
   if (isLoading) {
     return (
       <Box>
@@ -288,8 +269,9 @@ export const CoachesPage: React.FC = () => {
   }
 
   const coaches = coachesData?.data || [];
-  const pendingCoaches = getPendingCoaches();
-  const topPerformers = getTopPerformers();
+  const pendingCoaches = coachesData?.data?.filter((c: Coach) => c.status === 'pending') || [];
+  const topPerformers = coachesData?.data?.filter((coach: Coach) => coach.rating && coach.rating >= 4.5)
+    .sort((a: Coach, b: Coach) => (b.rating || 0) - (a.rating || 0)).slice(0, 5) || [];
 
   return (
     <Box>
@@ -729,8 +711,6 @@ export const CoachesPage: React.FC = () => {
           </CardContent>
         </Card>
       )}
-
-      {/* Drawer replaces approval dialog */}
     </Box>
   );
 };
