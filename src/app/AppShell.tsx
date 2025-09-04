@@ -233,8 +233,9 @@ export const AppShell: React.FC = () => {
                       ? "linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(139, 92, 246, 0.5) 100%)" 
                       : "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(139, 92, 246, 0.2) 100%)",
                     transform: "translateX(4px)",
+                    boxShadow: isActive ? "0 6px 16px rgba(103, 80, 164, 0.35)" : "0 4px 12px rgba(103, 80, 164, 0.25)",
                   },
-                  transition: "all 0.2s ease",
+                  transition: "transform 180ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease, background 200ms ease",
                   "&.Mui-selected": {
                     background: "linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(139, 92, 246, 0.4) 100%)",
                     color: "#FFFFFF",
@@ -243,6 +244,10 @@ export const AppShell: React.FC = () => {
                       background: "linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(139, 92, 246, 0.5) 100%)",
                     },
                   },
+                  ":focus-visible": {
+                    outline: "2px solid rgba(182,157,248,0.9)",
+                    outlineOffset: 2,
+                  },
                 }}
               >
                 <ListItemIcon
@@ -250,12 +255,26 @@ export const AppShell: React.FC = () => {
                     color: isActive ? "#FFFFFF" : "#FFFFFF",
                     minWidth: isMobile ? 40 : (drawerCollapsed ? 0 : 40),
                     filter: isActive ? "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))" : "none",
+                    transition: "transform 180ms cubic-bezier(0.22, 1, 0.36, 1), filter 180ms ease",
+                    transform: isActive ? "scale(1.06)" : "scale(1.0)",
+                    "& .MuiSvgIcon-root": {
+                      transition: "transform 180ms cubic-bezier(0.22, 1, 0.36, 1)",
+                    },
                   }}
                 >
                   {item.icon}
                 </ListItemIcon>
-                <Collapse in={!isMobile && !drawerCollapsed} orientation="horizontal">
-                  <ListItemText primary={item.label} />
+                <Collapse in={!isMobile && !drawerCollapsed} orientation="horizontal" timeout={{ enter: 250, exit: 150 }}>
+                  <ListItemText 
+                    primary={item.label}
+                    primaryTypographyProps={{
+                      sx: {
+                        transition: "opacity 200ms ease, transform 200ms ease",
+                        opacity: 1,
+                        transform: "translateX(0)",
+                      },
+                    }}
+                  />
                 </Collapse>
               </ListItemButton>
             </ListItem>
