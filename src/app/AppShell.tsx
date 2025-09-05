@@ -99,6 +99,11 @@ export const AppShell: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const location = useLocation();
   const navigate = useNavigate();
+  // Normalize pathname relative to router basename so nav state works at /thrive-circle
+  const basePath = new URL(process.env.PUBLIC_URL || '/thrive-circle', window.location.origin)
+    .pathname
+    .replace(/\/$/, '');
+  const currentPath = (location.pathname.replace(new RegExp('^' + basePath), '') || '/') as string;
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -212,10 +217,7 @@ export const AppShell: React.FC = () => {
       </Toolbar>
       <List>
         {visibleNavItems.map((item) => {
-          const isActive =
-            item.path === "/"
-              ? location.pathname === "/"
-              : location.pathname === item.path;
+          const isActive = item.path === "/" ? currentPath === "/" : currentPath === item.path;
           return (
             <ListItem key={item.path} disablePadding>
               <ListItemButton

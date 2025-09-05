@@ -98,5 +98,6 @@ export const router = createBrowserRouter([
     ],
   },
 ], {
-  basename: process.env.NODE_ENV === 'production' ? '/thrive-circle' : '/',
+  // Ensure the app works under /thrive-circle locally too
+  basename: new URL(process.env.PUBLIC_URL || '/thrive-circle', window.location.origin).pathname,
 });
